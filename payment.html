@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | Pochi Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --mpesa-green: #00a651;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #f9fafb;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            padding-bottom: 2rem;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .back-link {
+            color: var(--text-light);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--border);
+            z-index: 0;
+        }
+
+        .progress-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            height: 3px;
+            background: var(--primary);
+            z-index: 1;
+            transition: width 0.5s ease;
+            width: 66%;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            background: var(--bg);
+            padding: 0 1rem;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--white);
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-circle {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: var(--white);
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+        }
+
+        /* Payment Section */
+        .payment-section {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 3rem;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        /* Order Info */
+        .order-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .order-id {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .amount-to-pay {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .amount-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* M-Pesa Section */
+        .mpesa-section {
+            background: #f0fdf4;
+            border: 3px solid var(--mpesa-green);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .mpesa-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mpesa-logo {
+            background: var(--mpesa-green);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .mpesa-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--mpesa-green);
+        }
+
+        .pochi-number {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--mpesa-green);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .number-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--mpesa-green);
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+            user-select: all;
+        }
+
+        .copy-btn {
+            background: var(--mpesa-green);
+            color: var(--white);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #008741;
+            transform: scale(1.05);
+        }
+
+        /* Instructions */
+        .instructions {
+            counter-reset: step-counter;
+        }
+
+        .instruction-step {
+            position: relative;
+            padding: 1rem 1rem 1rem 4rem;
+            margin-bottom: 1rem;
+            background: var(--white);
+            border-radius: 10px;
+            border-left: 4px solid var(--mpesa-green);
+        }
+
+        .instruction-step::before {
+            content: counter(step-counter);
+            counter-increment: step-counter;
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--mpesa-green);
+            color: var(--white);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .instruction-step strong {
+            color: var(--text);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Alternative Methods */
+        .alternative-methods {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .method-option {
+            background: var(--bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .method-option:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .method-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Proceed Button */
+        .proceed-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary), #059669);
+            color: var(--white);
+            border: none;
+            padding: 1.25rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+            margin-top: 2rem;
+        }
+
+        .proceed-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Timer */
+        .timer-warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .timer {
+            font-weight: 700;
+            color: var(--warning);
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .payment-section {
+                padding: 2rem 1.5rem;
+            }
+
+            .amount-to-pay {
+                font-size: 2.5rem;
+            }
+
+            .number {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .instruction-step {
+                padding-left: 3.5rem;
+            }
+        }
+
+        .copied-toast {
+            position: fixed;
+            top: 100px;
+            right: 2rem;
+            background: var(--secondary);
+            color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .copied-toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">🛍️ Pochi Store</div>
+            <a href="checkout.html" class="back-link">← Back to Checkout</a>
+        </nav>
+    </header>
+
+    <!-- Container -->
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="progress-line"></div>
+            <div class="step completed">
+                <div class="step-circle">✓</div>
+                <div class="step-label">Cart</div>
+            </div>
+            <div class="step completed">
+                <div class="step-circle">✓</div>
+                <div class="step-label">Details</div>
+            </div>
+            <div class="step active">
+                <div class="step-circle">3</div>
+                <div class="step-label">Payment</div>
+            </div>
+            <div class="step">
+                <div class="step-circle">4</div>
+                <div class="step-label">Confirm</div>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="payment-section">
+            <h2>Complete Your Payment</h2>
+            <p class="subtitle">You're almost done! Just complete the payment to confirm your order</p>
+
+            <!-- Order Info -->
+            <div class="order-info">
+                <div class="order-id">Order ID: <strong id="orderId">POCHI123456</strong></div>
+                <div class="amount-to-pay">KES <span id="paymentAmount">1,500</span></div>
+                <div class="amount-label">Total Amount to Pay</div>
+            </div>
+
+            <!-- M-Pesa Section -->
+            <div class="mpesa-section">
+                <div class="mpesa-header">
+                    <div class="mpesa-logo">M-PESA</div>
+                    <div class="mpesa-title">Pochi La Biashara</div>
+                </div>
+
+                <div class="pochi-number">
+                    <div class="number-label">Send payment to this number:</div>
+                    <div class="number" id="pochiNumber">07XX XXX XXX</div>
+                    <button class="copy-btn" onclick="copyNumber()">📋 Copy Number</button>
+                </div>
+
+                <div class="instructions">
+                    <div class="instruction-step">
+                        <strong>Open M-PESA on your phone</strong>
+                        <span>Go to your M-PESA menu</span>
+                    </div>
+                    <div class="instruction-step">
+                        <strong>Select "Pochi La Biashara"</strong>
+                        <span>Choose the Pochi option from the menu</span>
+                    </div>
+                    <div class="instruction-step">
+                        <strong>Enter the number above</strong>
+                        <span>Type or paste the Pochi number</span>
+                    </div>
+                    <div class="instruction-step">
+                        <strong>Enter amount: KES <span id="instructionAmount">1,500</span></strong>
+                        <span>Make sure the amount matches exactly</span>
+                    </div>
+                    <div class="instruction-step">
+                        <strong>Enter your M-PESA PIN</strong>
+                        <span>Complete the transaction</span>
+                    </div>
+                    <div class="instruction-step">
+                        <strong>Wait for M-PESA confirmation SMS</strong>
+                        <span>You'll receive a confirmation message from M-PESA</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Warning -->
+            <div class="timer-warning">
+                <span>⏱️</span>
+                <div>
+                    <strong>Complete payment within <span class="timer" id="timer">15:00</span> minutes</strong>
+                    <div style="font-size: 0.9rem; color: var(--text-light);">Your order will be held for 15 minutes</div>
+                </div>
+            </div>
+
+            <!-- Proceed Button -->
+            <button class="proceed-btn" onclick="proceedToConfirm()">
+                I Have Completed Payment ✓
+            </button>
+
+            <!-- Alternative Methods -->
+            <div class="alternative-methods">
+                <h3 style="margin-bottom: 1rem;">Alternative Payment Methods</h3>
+                
+                <div class="method-option" onclick="alert('Cash on Delivery - Pay when you receive your order')">
+                    <div class="method-header">
+                        <span class="method-icon">💵</span>
+                        <div>
+                            <div>Cash on Delivery</div>
+                            <div style="font-size: 0.85rem; font-weight: 400; color: var(--text-light);">Pay when you receive your order</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="method-option" onclick="alert('Card Payment - Coming soon!')">
+                    <div class="method-header">
+                        <span class="method-icon">💳</span>
+                        <div>
+                            <div>Card Payment</div>
+                            <div style="font-size: 0.85rem; font-weight: 400; color: var(--text-light);">Pay with debit or credit card</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copied Toast -->
+    <div class="copied-toast" id="copiedToast">
+        ✓ Number copied to clipboard!
+    </div>
+
+    <script>
+        // Load order data
+        const order = JSON.parse(localStorage.getItem('order') || '{}');
+        
+        if (order.orderId) {
+            document.getElementById('orderId').textContent = order.orderId;
+            document.getElementById('paymentAmount').textContent = order.amount.toLocaleString();
+            document.getElementById('instructionAmount').textContent = order.amount.toLocaleString();
+        }
+
+        // Copy number function
+        function copyNumber() {
+            const number = document.getElementById('pochiNumber').textContent;
+            navigator.clipboard.writeText(number).then(() => {
+                const toast = document.getElementById('copiedToast');
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        // Timer countdown
+        let timeLeft = 15 * 60; // 15 minutes in seconds
+        const timerElement = document.getElementById('timer');
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+            } else {
+                clearInterval(timerInterval);
+                alert('Payment time expired. Please start a new order.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Proceed to confirmation
+        function proceedToConfirm() {
+            // Update order status
+            const currentOrder = JSON.parse(localStorage.getItem('order') || '{}');
+            currentOrder.paymentMethod = 'M-PESA Pochi La Biashara';
+            currentOrder.paymentInitiated = new Date().toISOString();
+            localStorage.setItem('order', JSON.stringify(currentOrder));
+            
+            // Redirect to confirmation page
+            window.location.href = 'confirm.html';
+        }
+
+        // Auto-redirect on page load if no order
+        if (!order.orderId) {
+            alert('No order found. Please start from the product page.');
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
